@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Room Control</title>
+  <script src="jquery.js"></script>
+  <!--script type="text/javascript" src="jscolor/jscolor.js"></script-->
+  <script type="text/javascript" src="raphael-2.1.0-min.js"></script>
+  <script type="text/javascript" src="colorwheel.js"></script>
+</head>
+
+<body>
+  <style>
+  body{
+    color: gold;
+    background-color: black;
+  }
+  </style>
+  <header>
+        <h1>Room Control</h1>
+  </header>
+
+  <section>
+
+    <article>
+      <h2>Lighting Control</h2>
+      <ul>
+        <li>
+        <input id="hex" class="color {onImmediateChange:'updateInfo(this);'}" value="#<%="#{@color}"%>">
+        <div class="colorwheel" style="margin-right:30px;"></div>
+        <button id="off" onclick="$('#hex').val('#000000').trigger('keyup');">Off</button>
+        <button id="White" onclick="$('#hex').val('#ffffff').trigger('keyup');">White</button>
+        <button id="sky_blue" onclick="$('#hex').val('#ffea00').trigger('keyup');">Sunrise</button>
+        <button id="sky_blue" onclick="$('#hex').val('#001dff').trigger('keyup');">Sky Blue</button>
+        <button id="green" onclick="$('#hex').val('#00ff00').trigger('keyup');">Green</button>
+        <button id="sunset" onclick="$('#hex').val('#ff1900').trigger('keyup');">Sunset</button>
+        <button id="cycle" >Cycle All</button>
+        <br />
+        </li>
+      </ul>
+    </article>
+
+  </section>
+
+<script>
+function updateInfo(color) {
+  if (on && $('#strobe').is(':checked') && color.hex != '#000000' ){
+    current_color = color.hex;
+  }
+  $.get('/lights?hex='+color.hex.replace("#",""),function(){
+    if ($('#autosync').is(':checked')){
+      $.get('/sync_lamp?'+new Date());
+    }
+  });
+}
+var t;
+var on = true;
+var current_color = '';
+$(function(){
+
+  var cw = Raphael.colorwheel($(".colorwheel")[0],300);
+  cw.input($("#hex")[0]);
+  cw.onchange(function(color){ updateInfo(color)});
+
+  $('#lamp').click(function(){
+    $.get('/sync_lamp?'+new Date());
+  });
+  $('#cyclelamp').click(function(){
+    $.get('/cycle_lamp?'+new Date());
+  });
+  $('#cycle').click(function(){
+    $.get('/cycle?'+new Date());
+  });
+  $('#fadelamp').click(function(){
+    $.get('/fade_lamp?'+new Date());
+  });
+
+});
+
+</script>
+
+  <footer>
+    <p></p>
+  </footer>
+
+</body>
+
+</html>
